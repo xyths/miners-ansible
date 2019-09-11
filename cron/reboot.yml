@@ -1,0 +1,5 @@
+- hosts: 'g*'
+  tasks:
+  - name: Unconditionally reboot the machine with all defaults
+    become: true
+    reboot:

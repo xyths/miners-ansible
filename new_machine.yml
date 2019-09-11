@@ -1,0 +1,88 @@
+- hosts: 't6'
+  tasks:
+  - name: Copy CUDA driver
+    copy:
+      src: /home/pangu/cuda-repo-ubuntu1804-10-1-local-10.1.168-418.67_1.0-1_amd64.deb
+      dest: /home/pangu/cuda-repo-ubuntu1804-10-1-local-10.1.168-418.67_1.0-1_amd64.deb
+  - name: Copy install_cuda.sh
+    become: true
+    copy:
+      src: /home/pangu/ansible/install_cuda.sh
+      dest: /home/pangu/install_cuda.sh
+      owner: pangu
+      mode: '0775'
+  - name: Install CUDA
+    become: true
+    shell: ./install_cuda.sh
+    args:
+      chdir: /home/pangu/
+  - name: Create serominer directory if it does not exist
+    file:
+      path: /home/pangu/serominer/log
+      state: directory
+      recurse: yes
+  - name: Copy serominer
+    copy:
+      src: /home/pangu/serominer/serominer
+      dest: /home/pangu/serominer/serominer
+      mode: '0775'
+  - name: Copy startup.template
+    copy:
+      src: /home/pangu/ansible/startup.template
+      dest: /home/pangu/serominer/startup.template
+      owner: pangu
+  - name: Copy replace.sh
+    copy:
+      src: /home/pangu/ansible/replace.sh
+      dest: /home/pangu/serominer/replace.sh
+      owner: pangu
+      mode: '0775'
+  - name: Generate startup.sh
+    shell: ./replace.sh
+    args:
+      chdir: /home/pangu/serominer/
+  - name: Install supervisor
+    become: true
+    apt:
+      name: supervisor
+      update_cache: yes
+  - name: Copy sero-miner.conf
+    become: true
+    copy:
+      src: /home/pangu/ansible/sero-miner.conf
+      dest: /etc/supervisor/conf.d/sero-miner.conf
+      owner: root
+  - name: Unarchive filebeat.tar.gz
+    unarchive:
+      src: /home/pangu/filebeat-7.3.0-linux-x86_64.tar.gz
+      dest: /home/pangu/
+  - name: Create monitor directory if it does not exist
+    file:
+      path: /home/pangu/monitor/log
+      state: directory
+      recurse: yes
+  - name: Copy GPU monitor
+    copy:
+      src: /home/pangu/ansible/monitor/temperature.sh
+      dest: /home/pangu/monitor/
+      mode: '0775'
+  - name: Monitor GPU every minute
+    cron:
+      name: "auto restart miner"
+      minute: "*/1"
+      job: "/home/pangu/monitor/temperature.sh >> /home/pangu/monitor/log/temperature.log"
+      user: pangu
+  - name: Copy filebeat.yml
+    copy:
+      src: /home/pangu/ansible/monitor/filebeat.yml
+      dest: /home/pangu/monitor/
+      mode: '0600'
+  - name: Copy gpu-monitor.conf
+    become: true
+    copy:
+      src: /home/pangu/ansible/monitor/gpu-monitor.conf
+      dest: /etc/supervisor/conf.d/gpu-monitor.conf
+      owner: root
+  - name: Unconditionally reboot the machine with all defaults
+    become: true
+    reboot:
