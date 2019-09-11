@@ -1,0 +1,2 @@
+nick=REALNICK
+./serominer -P stratum1+tcp://2AfewBDn4MsUZJAHpRYmCq4ueAgajE3Zimga3tX6vNRJDJxqeL4133bMCzzpAiF9Dg6RngfsCvnCZXeUFnWdXwYKNvZwF7saTCBvUPtaHCLqzk7xJfDV1J3CqdBdAAbqM7d1.n$nick@118.25.80.42:8008 -U

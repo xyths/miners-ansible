@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+  - name: Auto restart Supervisor everyday
+    cron:
+      name: "auto restart miner"
+      minute: "0"
+      hour: "9"
+      job: "supervisorctl restart miner"
+      user: root

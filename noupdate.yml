@@ -1,0 +1,10 @@
+- hosts: 'g10 g11 g12 g13 g14 g15 g16'
+  tasks:
+  - name: Upate 10periodic
+    become: true
+    copy:
+      src:  /etc/apt/apt.conf.d/10periodic
+      dest: /etc/apt/apt.conf.d/10periodic
+  - name: Unconditionally reboot the machine with all defaults
+    become: true
+    reboot:

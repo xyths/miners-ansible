@@ -1,0 +1,8 @@
+- hosts: all
+  become: true
+  tasks:
+  - name: Remove restart Supervisor crontab
+    cron:
+      name: "auto restart miner"
+      user: root
+      state : absent

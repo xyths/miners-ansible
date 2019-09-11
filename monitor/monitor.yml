@@ -1,0 +1,33 @@
+- hosts: 't1'
+  tasks:
+  - name: Unarchive filebeat.tar.gz
+    unarchive:
+      src: /home/pangu/filebeat-7.3.0-linux-x86_64.tar.gz
+      dest: /home/pangu/
+  - name: Create monitor directory if it does not exist
+    file:
+      path: /home/pangu/monitor/log
+      state: directory
+      recurse: yes
+  - name: Copy GPU monitor
+    copy:
+      src: /home/pangu/ansible/monitor/temperature.sh
+      dest: /home/pangu/monitor/
+      mode: '0775'
+  - name: Monitor GPU every minute
+    cron:
+      name: "auto restart miner"
+      minute: "*/1"
+      job: "/home/pangu/monitor/temperature.sh >> /home/pangu/monitor/log/temperature.log"
+      user: pangu
+  - name: Copy filebeat.yml
+    copy:
+      src: /home/pangu/ansible/monitor/filebeat.yml
+      dest: /home/pangu/monitor/
+      mode: '0600'
+  - name: Copy gpu-monitor.conf
+    become: true
+    copy:
+      src: /home/pangu/ansible/monitor/gpu-monitor.conf
+      dest: /etc/supervisor/conf.d/gpu-monitor.conf
+      owner: root
